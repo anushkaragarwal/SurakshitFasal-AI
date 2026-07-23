@@ -1,0 +1,5 @@
+{
+  "python.defaultInterpreterPath": "c:/Users/hp/Downloads/SurakshitFasalAI/.venv/Scripts/python.exe",
+  "python.analysis.extraPaths": ["./backend","./backend/ai"],
+  "python.analysis.indexing": true
+}
