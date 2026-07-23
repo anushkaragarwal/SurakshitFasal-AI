@@ -1,0 +1,10 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env
+*.db
+backend/generated_reports/
+backend/uploads/
+.vscode/
+.idea/
