@@ -1,6 +1,12 @@
 from fastapi import FastAPI, UploadFile, File, Depends, Form
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
+from fastapi.middleware.cors import CORSMiddleware
+from database.database import engine, Base
+from pydantic import BaseModel, EmailStr
+from passlib.context import CryptContext
+from jose import jwt
+from database.crud import create_user, get_user_by_email
 import shutil
 import os
 
@@ -10,8 +16,34 @@ from database.crud import save_report
 from database.models import CropReport
 from services.weather_service import get_weather
 from reports.pdf_service import generate_pdf
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+SECRET_KEY = "surakshitfasal2026"   # Hackathon ke liye theek hai, baad me .env me shift karna
+ALGORITHM = "HS256"
+class RegisterRequest(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+    role: str
+    state: str
+    district: str
+    village: str
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
@@ -147,3 +179,56 @@ def create_pdf(report: dict):
         media_type="application/pdf",
         filename="SurakshitFasal_Report.pdf",
     )
+@app.post("/register")
+def register(user: RegisterRequest, db: Session = Depends(get_db)):
+
+    existing = get_user_by_email(db, user.email)
+
+    if existing:
+        return {"message": "Email already exists"}
+
+    hashed_password = pwd_context.hash(user.password)
+
+    new_user = create_user(
+        db,
+        {
+            "name": user.name,
+            "email": user.email,
+            "password": hashed_password,
+            "role": user.role,
+            "state": user.state,
+            "district": user.district,
+            "village": user.village,
+        },
+    )
+
+    return {
+        "message": "User registered successfully",
+        "user_id": new_user.id,
+    }
+@app.post("/login")
+def login(user: LoginRequest, db: Session = Depends(get_db)):
+
+    db_user = get_user_by_email(db, user.email)
+
+    if not db_user:
+        return {"message": "Invalid email or password"}
+
+    if not pwd_context.verify(user.password, db_user.password):
+        return {"message": "Invalid email or password"}
+
+    token = jwt.encode(
+        {
+            "id": db_user.id,
+            "email": db_user.email,
+            "role": db_user.role,
+        },
+        SECRET_KEY,
+        algorithm=ALGORITHM,
+    )
+
+    return {
+        "message": "Login successful",
+        "token": token,
+        "role": db_user.role,
+    }
