@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://surakshitfasal-ai.onrender.com";
 
 export async function login(email: string, password: string) {
   const response = await fetch(`${API_URL}/login`, {
@@ -23,7 +23,7 @@ export async function analyzeCrop(file: File, city: string) {
   formData.append("language", "en");
   formData.append("city", city);
 
-  const response = await fetch("http://127.0.0.1:8000/analyze", {
+  const response = await fetch(`${API_URL}/analyze`, {
     method: "POST",
     body: formData,
   });
