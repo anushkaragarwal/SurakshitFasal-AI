@@ -39,7 +39,16 @@ class LoginRequest(BaseModel):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+   app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "https://surakshit-fasal-ai-27u9.vercel.app",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
