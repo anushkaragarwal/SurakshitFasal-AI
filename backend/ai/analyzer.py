@@ -1,8 +1,12 @@
 import os
 import json
 import base64
+from pathlib import Path
 from dotenv import load_dotenv
 from openai import OpenAI
+
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
 load_dotenv()
 
@@ -10,6 +14,8 @@ load_dotenv()
 
 def analyze_leaf(image_path, language="en"):
     api_key = os.getenv("OPENROUTER_API_KEY")
+    print("API Loaded:", bool(api_key))
+    print("ENV PATH:", env_path)
 
     if not api_key:
         return {
