@@ -58,12 +58,9 @@ async def analyze(
     file: UploadFile = File(...),
     language: str = Form("en"),
     city: str = Form("Delhi"),
+    db: Session = Depends(get_db)
 ):
-    return {
-        "status": "ok",
-        "filename": file.filename,
-        "city": city
-    }
+    
     # Create uploads folder
     os.makedirs("uploads", exist_ok=True)
 
